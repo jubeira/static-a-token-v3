@@ -68,6 +68,14 @@ abstract contract BaseTest is Test {
     this.pool().deposit(this.UNDERLYING(), amountToDeposit, targetUser, 0);
   }
 
+  function _underlyingToAToken2(uint256 amountToDeposit, address targetUser) internal {
+    vm.stopPrank();
+    vm.prank(targetUser);
+    IERC20(this.UNDERLYING()).approve(address(this.pool()), amountToDeposit);
+    vm.prank(targetUser);
+    this.pool().deposit(this.UNDERLYING(), amountToDeposit, targetUser, 0);
+  }
+
   function _depositAToken(uint256 amountToDeposit, address targetUser) internal returns (uint256) {
     _underlyingToAToken(amountToDeposit, targetUser);
     IERC20(this.A_TOKEN()).approve(address(staticATokenLM), amountToDeposit);

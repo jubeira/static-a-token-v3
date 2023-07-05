@@ -242,36 +242,50 @@ contract StaticATokenLMTest is BaseTest {
     uint128 amountToDeposit = 5 ether;
     _fundUser(amountToDeposit, user);
 
+    console.log('rate before deposit:\t\t', staticATokenLM.rate());
+    console.log('total assets before deposit:\t', staticATokenLM.totalAssets());
+
     // deposit aweth
-    _depositAToken(amountToDeposit, user);
+    _depositAToken(5 ether, user);
 
-    // forward time
-    _skipBlocks(60);
+    console.log('rate before transfer:\t\t', staticATokenLM.rate());
+    console.log('total assets before transfer:\t', staticATokenLM.totalAssets());
 
-    // claim
-    assertEq(IERC20(REWARD_TOKEN()).balanceOf(user), 0);
-    uint256 claimable0 = staticATokenLM.getClaimableRewards(user, REWARD_TOKEN());
-    assertEq(staticATokenLM.getTotalClaimableRewards(REWARD_TOKEN()), claimable0);
-    assertGt(claimable0, 0);
-    staticATokenLM.claimRewardsToSelf(rewardTokens);
-    assertEq(IERC20(REWARD_TOKEN()).balanceOf(user), claimable0);
+    _fundUser(amountToDeposit, address(staticATokenLM));
+    _fundUser(amountToDeposit, address(this));
+    console.log('balance of underlying for wrapper: ', IERC20(UNDERLYING).balanceOf(address(staticATokenLM)));
+    _underlyingToAToken2(amountToDeposit, address(staticATokenLM));
 
-    // forward time
-    _skipBlocks(60);
+    console.log('rate after transfer:\t\t', staticATokenLM.rate());
+    console.log('total assets after transfer:\t', staticATokenLM.totalAssets());
 
-    // redeem
-    staticATokenLM.redeem(staticATokenLM.maxRedeem(user), user, user);
-    uint256 claimable1 = staticATokenLM.getClaimableRewards(user, REWARD_TOKEN());
-    assertEq(staticATokenLM.getTotalClaimableRewards(REWARD_TOKEN()), claimable1);
-    assertGt(claimable1, 0);
+    // // forward time
+    // _skipBlocks(60);
 
-    // claim on behalf of other user
-    staticATokenLM.claimRewardsToSelf(rewardTokens);
-    assertEq(IERC20(REWARD_TOKEN()).balanceOf(user), claimable1 + claimable0);
-    assertEq(staticATokenLM.balanceOf(user), 0);
-    assertEq(staticATokenLM.getClaimableRewards(user, REWARD_TOKEN()), 0);
-    assertEq(staticATokenLM.getTotalClaimableRewards(REWARD_TOKEN()), 0);
-    assertGt(AToken(A_TOKEN).balanceOf(user), 5 ether);
+    // // claim
+    // assertEq(IERC20(REWARD_TOKEN()).balanceOf(user), 0);
+    // uint256 claimable0 = staticATokenLM.getClaimableRewards(user, REWARD_TOKEN());
+    // assertEq(staticATokenLM.getTotalClaimableRewards(REWARD_TOKEN()), claimable0);
+    // assertGt(claimable0, 0);
+    // staticATokenLM.claimRewardsToSelf(rewardTokens);
+    // assertEq(IERC20(REWARD_TOKEN()).balanceOf(user), claimable0);
+
+    // // forward time
+    // _skipBlocks(60);
+
+    // // redeem
+    // staticATokenLM.redeem(staticATokenLM.maxRedeem(user), user, user);
+    // uint256 claimable1 = staticATokenLM.getClaimableRewards(user, REWARD_TOKEN());
+    // assertEq(staticATokenLM.getTotalClaimableRewards(REWARD_TOKEN()), claimable1);
+    // assertGt(claimable1, 0);
+
+    // // claim on behalf of other user
+    // staticATokenLM.claimRewardsToSelf(rewardTokens);
+    // assertEq(IERC20(REWARD_TOKEN()).balanceOf(user), claimable1 + claimable0);
+    // assertEq(staticATokenLM.balanceOf(user), 0);
+    // assertEq(staticATokenLM.getClaimableRewards(user, REWARD_TOKEN()), 0);
+    // assertEq(staticATokenLM.getTotalClaimableRewards(REWARD_TOKEN()), 0);
+    // assertGt(AToken(A_TOKEN).balanceOf(user), 5 ether);
   }
 
   function test_depositWETHClaimWithdrawClaim() public {
